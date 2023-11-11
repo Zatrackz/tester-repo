@@ -1,0 +1,34 @@
+name: build java project with Maven
+
+on:
+    push:
+        branches:
+            - main
+    workflow_dispatch:
+## the above trigger causes the workflow to be triggered when code is pushed
+
+jobs:
+    build-test-deploy: ## thisd specifies the job name
+        runs-on: ubuntu-latest   ## specifioes where the job should run
+        steps:
+            - name: clone repository
+              uses: actions/checkout@v3   ## the first step clonmesa our repo into the runner
+
+            - name: install and setup java with maven
+              uses: actions/setup-java@v3
+              with:
+                distribution: 'adopt'
+                java-version: '11'
+
+            - name: code build with maven
+              run: mvn package   
+
+# The end result of this workflow will be an artifact being created.
+# How can we store this artifact after the build before the runner is cleaned up?
+# Artifact Upload: when an artifact is created and the job is done on the runner, Artifact Upload helps upload the artifact from the runner to Github repo.
+# The goal of Artifact upload is to store the artifact in a repository so that the next job can make use of it. 
+            - name: upload maven artifact
+              uses: actions/upload-artifact@v3
+              with:
+                name: my-test-artifact
+                path: target/*.war
